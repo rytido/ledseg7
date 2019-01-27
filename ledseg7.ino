@@ -95,9 +95,10 @@ void setvalue(long i){
   lc.setDigit(0,5,(i/100000)%10,false);
   lc.setDigit(0,6,(i/1000000)%10,false);
   lc.setDigit(0,7,(i/10000000)%10,false);
-  delay(1000);
+  delay(500);
 }
 
+long priorValue=0;
 long integerValue=0;  // Max value is 65535
 char incomingByte;
 
@@ -114,5 +115,9 @@ void loop() {
     }
     Serial.println(integerValue);   // Do something with the value
   }
-  setvalue(integerValue);
+  if (integerValue!=priorValue){
+    setvalue(integerValue);
+    priorValue=integerValue;
+  }
+  delay(50);
 }
