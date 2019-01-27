@@ -98,8 +98,8 @@ void setvalue(long i){
   delay(500);
 }
 
-long priorValue=0;
-long integerValue=0;  // Max value is 65535
+long priorValue=-1;
+long integerValue=0;
 char incomingByte;
 
 void loop() {
