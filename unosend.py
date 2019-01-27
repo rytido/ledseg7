@@ -1,6 +1,7 @@
 from time import sleep
 import serial
 
+# sudo chmod a+rw /dev/ttyACM0
 # equivalent to
 # echo 345 > /dev/ttyACM0
 
