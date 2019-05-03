@@ -1,3 +1,4 @@
+//ESP8266 ESP-12E MAX7219
 //sudo chmod -R 777 /dev/ttyUSB0
 #include "LedControl.h"
 #include "ESP8266WiFi.h"
@@ -32,6 +33,7 @@ void setup() {
       lc.setChar(0, i, ' ', false);
     }
   }
+  //WiFi.localIP()
 }
 
 void setvalue(long i){
