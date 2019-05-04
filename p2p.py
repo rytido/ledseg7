@@ -1,7 +1,6 @@
 import time
 import socket
 import struct
-import random
 import hashlib
 import json
 
@@ -24,7 +23,7 @@ def make_version_message():
     addr_from = struct.pack("Q", 0)
     addr_from += struct.pack(">16s", "127.0.0.1")
     addr_from += struct.pack(">H", 8333)
-    nonce = struct.pack("Q", random.getrandbits(64))
+    nonce = struct.pack("Q", 0) # not important, was random.getrandbits(64)
     user_agent_bytes = struct.pack("B", 0)
     height = struct.pack("i", 500000)
     payload = version + services + timestamp + addr_recv + addr_from + nonce + user_agent_bytes + height
@@ -36,13 +35,19 @@ def get_height(version_message):
     return block_height
 
 
+def save_message(message):
+    message = make_message("version", make_version_message())
+    open('version_message.txt', 'w').write(message.encode('hex'))
+
+
 if __name__ == "__main__":
     conf = json.load(open("config.json"))
     while True:
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.connect((conf["peer_ip"], 8333))
-            sock.send(make_message("version", make_version_message()))
+            message = open('version_message.txt', 'r').read().decode('hex')
+            sock.send(message)
             version_message = sock.recv(126)
             block_height = get_height(version_message)
             if block_height < 550000:
