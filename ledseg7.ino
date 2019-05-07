@@ -3,7 +3,6 @@
 #include "LedControl.h"
 #include "ESP8266WiFi.h"
 #include "config.h"
-#include "WebSocketsClient.h"
 
 /*
 12/D7 - DIN
@@ -12,41 +11,43 @@
 We have 1 MAX72XX
 */
 LedControl lc=LedControl(D7,D5,D8,1);
-WebSocketsClient sock;
-char version_hex[] = "f9beb4d976657273696f6e0000000000550000007b0df4a37f11010000000000000000005c80cd5c0000000000000000000000003132372e302e302e3100000000000000208d00000000000000003132372e302e302e3100000000000000208d00000000000000000020a10700";
+WiFiClient client;
+char* hex = "f9beb4d976657273696f6e0000000000550000007b0df4a37f11010000000000000000005c80cd5c0000000000000000000000003132372e302e302e3100000000000000208d00000000000000003132372e302e302e3100000000000000208d00000000000000000020a10700";
 
-void webSocketEvent(WStype_t type, uint8_t * payload, size_t len) {
+uint8_t* hex_str_to_uint8(const char* string) {
 
-    switch(type) {
-        case WStype_DISCONNECTED:
-            setvalue(10);
-            break;
-        case WStype_CONNECTED:
-            {
-                setvalue(11);
-            }
-            break;
-        case WStype_TEXT:
-           setvalue(12);
+    if (string == NULL)
+        return NULL;
 
-            // send data to back to Server
-            //sock.sendTXT(payload, len);
-            break;
-        case WStype_BIN:
-            setvalue(13);
-            hexdump(payload, len);
+    size_t slength = strlen(string);
+    if ((slength % 2) != 0) // must be even
+        return NULL;
 
-            // echo data back to Server
-            //sock.sendBIN(payload, lenght);
-            break;
+    size_t dlength = slength / 2;
 
-        case WStype_ERROR:
-            setvalue(99);
-            break;
+    uint8_t* data = (uint8_t*)malloc(dlength);
 
-        default:
-            break;
+    memset(data, 0, dlength);
+
+    size_t index = 0;
+    while (index < slength) {
+        char c = string[index];
+        int value = 0;
+        if (c >= '0' && c <= '9')
+            value = (c - '0');
+        else if (c >= 'A' && c <= 'F')
+            value = (10 + (c - 'A'));
+        else if (c >= 'a' && c <= 'f')
+            value = (10 + (c - 'a'));
+        else
+            return NULL;
+
+        data[(index / 2)] += value << (((index + 1) % 2) * 4);
+
+        index++;
     }
+
+    return data;
 }
 
 void setup() {
@@ -71,8 +72,24 @@ void setup() {
     }
   }
   //WiFi.localIP()
-  sock.begin(peer_ip, 8333);
-  sock.onEvent(webSocketEvent);
+
+  client.connect(peer_ip, 8333);
+
+  if (client.connected()) {
+    setvalue(1000);
+    delay(1000);
+  }
+
+  char bytes[109];
+
+  for (unsigned int i = 0; i < 218; i += 2) {
+    char test[2] = {hex[i], hex[i+1]};
+    bytes[i] = (char) strtol(test, NULL, 16);
+  }
+  
+  //uint8_t* bytes = hex_str_to_uint8(hex);
+  
+  client.write(bytes);
 }
 
 void setvalue(long i){
