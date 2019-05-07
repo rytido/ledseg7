@@ -31,6 +31,7 @@ def make_version_message():
 
 
 def get_height(version_message):
+    # can also be calculated from ord(version_message[j]) * 256 ** j
     block_height = struct.unpack('i', version_message[121:125])[0]
     return block_height
 
@@ -59,7 +60,7 @@ if __name__ == "__main__":
             break
         except Exception as err:
             sock.close()
-            time.sleep(2.5)
+            time.sleep(10)
             print(err)
         finally:
             sock.close()
