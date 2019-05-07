@@ -12,7 +12,7 @@ We have 1 MAX72XX
 */
 LedControl lc=LedControl(D7,D5,D8,1);
 WiFiClient client;
-char* hex = "f9beb4d976657273696f6e0000000000550000007b0df4a37f11010000000000000000005c80cd5c0000000000000000000000003132372e302e302e3100000000000000208d00000000000000003132372e302e302e3100000000000000208d00000000000000000020a10700";
+char const *hex = "f9beb4d976657273696f6e0000000000550000007b0df4a37f11010000000000000000005c80cd5c0000000000000000000000003132372e302e302e3100000000000000208d00000000000000003132372e302e302e3100000000000000208d00000000000000000020a10700";
 
 uint8_t* hex_str_to_uint8(const char* string) {
 
@@ -76,20 +76,39 @@ void setup() {
   client.connect(peer_ip, 8333);
 
   if (client.connected()) {
-    setvalue(1000);
-    delay(1000);
+    setvalue(1);
   }
 
   char bytes[109];
-
-  for (unsigned int i = 0; i < 218; i += 2) {
-    char test[2] = {hex[i], hex[i+1]};
+  for (int i = 0; i < 109; i += 1) {
+    char test[2] = {hex[i*2], hex[i*2+1]};
     bytes[i] = (char) strtol(test, NULL, 16);
   }
-  
+
+  client.print(bytes);
+
+  while (client.connected() && !client.available()) {
+    delay(100);
+  }
   //uint8_t* bytes = hex_str_to_uint8(hex);
-  
-  client.write(bytes);
+
+  char buf[4];
+  for (int i = 0; i < 125; i += 1) {
+    int j = (unsigned char) client.read();
+    setvalue(i*10000 + j);
+    /*if (i > 120) {
+      buf[i - 121] = client.read();
+      setvalue(i);
+    } else {
+      client.read();
+    }*/
+  }
+/*
+  int a = int((unsigned char)(buf[0]) << 24 |
+              (unsigned char)(buf[1]) << 16 |
+              (unsigned char)(buf[2]) << 8 |
+              (unsigned char)(buf[3]));
+  */
 }
 
 void setvalue(long i){
@@ -106,7 +125,7 @@ void setvalue(long i){
 
 long intval=1;
 void loop() {
-  setvalue(intval);
-  intval = intval + 1;
-  // sock.sendBIN(payload, length);
+  //setvalue(intval);
+  //intval = intval + 1;
+  delay(1000);
 }
