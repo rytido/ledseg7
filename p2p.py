@@ -35,10 +35,13 @@ def get_height(version_message):
     return block_height
 
 
-def save_message(message):
+def save_message():
     message = make_message("version", make_version_message())
     open('version_message.txt', 'w').write(message.encode('hex'))
 
+def save_message_bytes():
+    message = make_message("version", make_version_message())
+    open('version_message', 'wb').write(message)
 
 if __name__ == "__main__":
     conf = json.load(open("config.json"))
