@@ -47,11 +47,38 @@ void loading(){
 }
 
 void failure(){
-  lc.setChar(0,0,'L',false);
-  lc.setDigit(0,1,1,false);
-  lc.setChar(0,2,'A',false);
-  lc.setChar(0,3,'F',false);
-  delay(1000);
+  lc.clearDisplay(0);
+  lc.setChar(0,4,'L',false);
+  lc.setDigit(0,5,1,false);
+  lc.setChar(0,6,'A',false);
+  lc.setChar(0,7,'F',false);
+  delay(30000);
+}
+
+void blocks(){
+  //'A','b','c','d','E','F','H','L','P'
+  //r lc.setRow(0,0,0x05);
+  //u lc.setRow(0,0,0x1c);
+  //0 decimal top topright topleft bottom bottomleft topleft middle
+  //middle topleft bottomleft bottom bottomright topright top decimal
+  lc.clearDisplay(0);
+  lc.setRow(0,2,B01011011); //S
+  lc.setRow(0,3,B00001000); //bottom (underscore)
+  lc.setChar(0,4,'c',false);
+  lc.setRow(0,5,0x1D); //o
+  lc.setChar(0,6,'L',false);
+  lc.setChar(0,7,'B',false);
+}
+
+void halving(){
+  lc.clearDisplay(0);
+  lc.setRow(0,1,B01111011);
+  lc.setRow(0,2,0x15); //n
+  lc.setRow(0,3,B00010000); //i
+  lc.setChar(0,4,'F',false);
+  lc.setChar(0,5,'L',false);
+  lc.setChar(0,6,'A',false);
+  lc.setChar(0,7,'H',false);
 }
 
 void setvalue(long i){
@@ -86,13 +113,21 @@ void loop() {
       }
     }
     client.stop();
-
-    setvalue(height);
-    delay(15000);
-    setvalue(630000 - height);
-    delay(15000);
+    if (height > 0){
+      for (int i = 0; i < 3; i += 1) {
+        blocks();
+        delay(2000);
+        setvalue(height);
+        delay(8000);
+        halving();
+        delay(2000);
+        setvalue(210000 - height % 210000);
+        delay(8000);
+      }
+    } else {
+      failure();
+    }
   } else {
     failure();
-    delay(30000);
   }
 }
