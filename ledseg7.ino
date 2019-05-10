@@ -41,17 +41,17 @@ void setup() {
 void loading(){
   for (int i = 7; i >= 0; i--) {
     lc.setChar(0, i, ' ', true);
-    delay(99);
+    delay(90);
     lc.setChar(0, i, ' ', false);
   }
 }
 
 void failure(){
   lc.clearDisplay(0);
-  lc.setChar(0,4,'L',false);
+  lc.setChar(0,4,'l',false);
   lc.setDigit(0,5,1,false);
-  lc.setChar(0,6,'A',false);
-  lc.setChar(0,7,'F',false);
+  lc.setChar(0,6,'a',false);
+  lc.setChar(0,7,'f',false);
   delay(30000);
 }
 
@@ -59,26 +59,35 @@ void blocks(){
   //'A','b','c','d','E','F','H','L','P'
   //r lc.setRow(0,0,0x05);
   //u lc.setRow(0,0,0x1c);
-  //0 decimal top topright topleft bottom bottomleft topleft middle
+  //0 decimal top topright bottomright bottom bottomleft topleft middle
   //middle topleft bottomleft bottom bottomright topright top decimal
   lc.clearDisplay(0);
-  lc.setRow(0,2,B01011011); //S
+  lc.setDigit(0,2,5,false); //S
   lc.setRow(0,3,B00001000); //bottom (underscore)
   lc.setChar(0,4,'c',false);
   lc.setRow(0,5,0x1D); //o
-  lc.setChar(0,6,'L',false);
-  lc.setChar(0,7,'B',false);
+  lc.setChar(0,6,'l',false);
+  lc.setChar(0,7,'b',false);
 }
 
-void halving(){
+void halving(int hblocks){
   lc.clearDisplay(0);
-  lc.setRow(0,1,B01111011);
-  lc.setRow(0,2,0x15); //n
-  lc.setRow(0,3,B00010000); //i
-  lc.setChar(0,4,'F',false);
-  lc.setChar(0,5,'L',false);
-  lc.setChar(0,6,'A',false);
-  lc.setChar(0,7,'H',false);
+  setvalue(hblocks);
+  //lc.setRow(0,1,B01111011);
+  //lc.setRow(0,2,0x15); //n
+  //lc.setRow(0,3,B00010000); //i
+  //lc.setChar(0,4,'f',false);
+  //lc.setChar(0,5,'l',false);
+  lc.setChar(0,6,'f',false);
+  lc.setChar(0,7,'h',false);
+}
+
+void days(int hblocks){
+  lc.clearDisplay(0);
+  setvalue((hblocks + 72) / 144);
+  lc.setRow(0,5,B00100111);
+  lc.setChar(0,6,'a',false);
+  lc.setChar(0,7,'d',false);
 }
 
 void setvalue(long i){
@@ -90,7 +99,6 @@ void setvalue(long i){
   if (i<100000) {lc.setChar(0,5,' ',false);} else {lc.setDigit(0,5,(i/100000)%10,false);}
   if (i<1000000) {lc.setChar(0,6,' ',false);} else {lc.setDigit(0,6,(i/1000000)%10,false);}
   if (i<10000000) {lc.setChar(0,7,' ',false);} else {lc.setDigit(0,7,(i/10000000)%10,false);}
-  delay(200);
 }
 
 void loop() {
@@ -109,20 +117,19 @@ void loop() {
         if (i > 120) {
           height = height + j * pow(256, i - 121);
         }
-        delay(5);
+        delay(4);
       }
     }
     client.stop();
     if (height > 0){
       for (int i = 0; i < 3; i += 1) {
-        blocks();
-        delay(2000);
         setvalue(height);
-        delay(8000);
-        halving();
-        delay(2000);
-        setvalue(210000 - height % 210000);
-        delay(8000);
+        delay(6000);
+        int hblocks = 210000 - height % 210000;
+        halving(hblocks);
+        delay(5000);
+        days(hblocks);
+        delay(5000);
       }
     } else {
       failure();
