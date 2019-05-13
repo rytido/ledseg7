@@ -30,6 +30,12 @@ def make_version_message():
     return payload
 
 
+def get_time(version_message):
+    # can also be calculated from ord(version_message[j]) * 256 ** j
+    thetime = struct.unpack('Q', version_message[36:44])[0]
+    return thetime
+
+
 def get_height(version_message):
     # can also be calculated from ord(version_message[j]) * 256 ** j
     block_height = struct.unpack('i', version_message[121:125])[0]
@@ -54,13 +60,16 @@ if __name__ == "__main__":
             sock.send(message)
             version_message = sock.recv(126)
             block_height = get_height(version_message)
+            print(block_height)
             if block_height < 550000:
                 raise Exception
-            print(block_height)
+            thetime = get_time(version_message)
+            print(thetime)
             break
         except Exception as err:
             sock.close()
-            time.sleep(10)
             print(err)
+            print(version_message)
+            time.sleep(4)
         finally:
             sock.close()
