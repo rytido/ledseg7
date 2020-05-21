@@ -40,9 +40,9 @@ void setup() {
 
 void loading(){
   for (int i = 7; i >= 0; i--) {
-    lc.setChar(0, i, ' ', true);
+    lc.setChar(0, i, ' ', true); // true - display period
     delay(90);
-    lc.setChar(0, i, ' ', false);
+    lc.setChar(0, i, ' ', false); // false - do not display period
   }
 }
 
@@ -70,8 +70,9 @@ void blocks(){
   lc.setChar(0,7,'b',false);
 }
 
-void halving(int hblocks){
+void halving(int height){
   lc.clearDisplay(0);
+  int hblocks = 210000 - height % 210000;
   setvalue(hblocks);
   //lc.setRow(0,1,B01111011);
   //lc.setRow(0,2,0x15); //n
@@ -82,12 +83,26 @@ void halving(int hblocks){
   lc.setChar(0,7,'h',false);
 }
 
-void days(int hblocks){
+void days(int height){
   lc.clearDisplay(0);
+  int hblocks = 210000 - height % 210000;
   setvalue((hblocks + 72) / 144);
   lc.setRow(0,5,B00100111);
   lc.setChar(0,6,'a',false);
   lc.setChar(0,7,'d',false);
+}
+
+void epoch(int height){
+  lc.clearDisplay(0);
+  setvalue(height / 2016);
+  lc.setChar(0,7,'E',true);
+}
+
+void epoch_blocks(int height){
+  lc.clearDisplay(0);
+  setvalue(height % 2016);
+  lc.setChar(0,6,'b',true);
+  lc.setChar(0,7,'E',true);
 }
 
 void setvalue(long i){
@@ -122,13 +137,12 @@ void loop() {
     }
     client.stop();
     if (height > 0){
-      for (int i = 0; i < 3; i += 1) {
+      for (int i = 0; i < 4; i += 1) {
         setvalue(height);
-        delay(6000);
-        int hblocks = 210000 - height % 210000;
-        halving(hblocks);
         delay(5000);
-        days(hblocks);
+        epoch(height);
+        delay(5000);
+        epoch_blocks(height);
         delay(5000);
       }
     } else {
