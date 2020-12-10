@@ -1,5 +1,9 @@
 //ESP8266 ESP-12E MAX7219
 //sudo chmod -R 777 /dev/ttyUSB0
+//Add https://arduino.esp8266.com/stable/package_esp8266com_index.json
+//to File -> Preferences -> Additionals Boards Manager URL
+//CANNOT HAVE ANY OTHER C FILES IN PROJECT DIRECTORY CONTAINING IDENTICAL VARIABLE NAMES
+//OTHERWISE YOU WILL GET multiple definitions of... ERROR
 #include "LedControl.h"
 #include "ESP8266WiFi.h"
 #include "config.h"
